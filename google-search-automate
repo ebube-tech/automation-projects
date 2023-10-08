@@ -1,0 +1,54 @@
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# Set Chrome Driver linking to path
+chrome_driver_path = "C:/Users/ebube/Downloads/chromedriver.exe"
+
+# Optional - Keep the browser open if the script crashes.
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_experimental_option("detach", True)
+
+# Set service and driver variables
+service = ChromeService(executable_path=chrome_driver_path)
+driver = webdriver.Chrome(service=service, options=chrome_options)
+
+
+# Navigate to the Google homepage
+driver.get("https://www.google.com")
+
+# Switch to iFrame Pop Up and Continue as guest 
+time.sleep(2)
+WebDriverWait(driver, 3).until(EC.frame_to_be_available_and_switch_to_it((By.CSS_SELECTOR,"iframe[name=callout]")))
+WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[aria-label='Stay signed out']"))).click()
+
+# Switch back to web content
+driver.switch_to.default_content()
+driver.implicitly_wait(2) # Adjust the wait time as needed
+
+# Find the search input element
+search_input = driver.find_element(by=By.NAME, value="q")
+
+driver.implicitly_wait(3)
+
+# Enter the search term "Selenium" into the search input element
+search_input.send_keys("Travel")
+search_input.send_keys(Keys.ENTER)
+
+driver.implicitly_wait(3)
+
+#Scroll search result page slowly
+total_height = int(driver.execute_script("return document.body.scrollHeight"))
+
+for i in range(30, total_height, 1):
+    driver.execute_script("window.scrollTo(0, {});".format(i))
+
+
+time.sleep(3)
+
+# Close the WebDriver instance
+driver.quit()
